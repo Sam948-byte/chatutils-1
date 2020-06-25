@@ -1,6 +1,6 @@
 {
 	"token": "insert bot token here",
-	"ssl": true,
+	"ssl": false,
 	"listenip": "127.0.0.1",
 	"port": 8080,
 	"disablePings": false,
