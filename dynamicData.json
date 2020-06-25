@@ -1,0 +1,27 @@
+{
+	"idBans": [
+		"demoID"
+	],
+	"ipBans": [
+		"demoIP"
+	],
+	"vpnIsps": [
+		"DigitalOcean",
+		"Digital Energy",
+		"Dedipath"
+	],
+	"channel": "placeholder",
+	"webhooks": [
+		"placeholder",
+		"placeholder",
+		"placeholder"
+	],
+	"logging": [
+		false,
+		"if above is true, put channel to log at here"
+	],
+	"filters": [
+		"nigg",
+		"https?:\/\/"
+	]
+}
