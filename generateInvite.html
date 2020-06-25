@@ -1,0 +1,89 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"> 
+<html>
+	<head>
+		<meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+		<meta charset='utf-8'>
+		<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+		<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+		<meta http-equiv='Content-Security-Policy' content='upgrade-insecure-requests'>
+		<meta name='viewport' content='width=device-width, initial-scale=1'>
+		<meta name='robots' content='noindex' />
+		<title>Chatutils 2</title>
+		<style>
+/* l33t h4x0r gang 2002 */
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+
+.wrapper {
+	position: absolute;
+	display: block;
+	width: calc(80vw - 20px);
+	height: calc(80vh - 20px);
+	font-family: 'Roboto', sans-serif;
+	margin: auto;
+	background: #d9d9d9;
+	border: 2px solid #737373;
+	border-radius: 9px;
+	padding: 20px;
+	top: 0;bottom: 0;left: 0;right: 0;
+	text-align: center;
+}
+
+.wrapper .title {
+	font-size: 30px;
+	color: #5050ff;
+}
+
+.wrapper .desc {
+	font-size: 20px;
+	color: #2d2d2d;
+}
+
+.wrapper .permission {
+	text-align: left;
+}
+
+#client-id {
+	display: inline;
+	width: calc(100% - 75px);
+}
+
+.submit-id {
+	display: inline-block;
+	width: 50px;
+}
+		</style>
+	</head>
+	<body>
+		<div class='wrapper'>
+			<div class='title'>Chatutils invite generator</div>
+			<div class='desc'>Permissions to be granted:</div>
+			
+			<div class='permission'>Manage Webhooks</div>
+			<div class='permission'>Read Messages</div>
+			<div class='permission'>Send Messages</div>
+			<div class='permission'>Add Reactions</div>
+			<div class='permission'>Use External Emojis</div>
+			
+			<form id='data'>
+				<input id='client-id' type='text' placeholder='BOT client ID' />
+				<input class='submit-id' type='submit' value='OK' />
+			</form>
+			
+			<a id='output'>https://discordapp.com/oauth2/authorize?client_id=344123413&scope=bot&permissions=537136192</a>
+			
+			<script>
+var form=document.getElementById('data'),
+	input=document.getElementById('client-id'),
+	output=document.getElementById('output');
+form.addEventListener('submit',e=>{ // listen on when the form is submitted
+	e.preventDefault();
+	if(input.value.match(/[^\d\s]/g))return output.innerHTML='Invalid client-id!'; // check for non-digits
+	var url='https://discordapp.com/oauth2/authorize?client_id='+input.value.replace(/\s/gi,'')+'&scope=bot&permissions=537136192';
+	output.innerHTML=url;
+	output.setAttribute('href',url);
+});
+			</script>
+		</div>
+	</body>
+</html>
