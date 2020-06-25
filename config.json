@@ -1,0 +1,21 @@
+{
+	"token": "insert bot token here",
+	"ssl": true,
+	"listenip": "127.0.0.1",
+	"port": 8080,
+	"disablePings": false,
+	"logInvites":true,
+	"contactEmail":"insertContact@domain.tld",
+	"mods": [
+		{
+			"type": "role",
+			"value": "insert role ID here"
+		}
+	],
+	"helpers": [
+		{
+			"type": "role",
+			"value": "insert role ID here"
+		}
+	]
+}

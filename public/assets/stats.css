@@ -1,0 +1,89 @@
+@font-face{font-family:Whitney;font-style:light;font-weight:300;src:url('../cdn1/assets/6c6374bad0b0b6d204d8d6dc4a18d820.woff') format('woff')}
+@font-face{font-family:Whitney;font-style:normal;font-weight:500;src:url('../cdn1/assets/e8acd7d9bf6207f99350ca9f9e23b168.woff') format('woff')}
+@font-face{font-family:Whitney;font-style:medium;font-weight:600;src:url('../cdn1/assets/3bdef1251a424500c1b3a78dea9b7e57.woff') format('woff')}
+@font-face{font-family:WhitneyMedium;font-style:medium;font-weight:600;src:url('../cdn1/assets/be0060dafb7a0e31d2a1ca17c0708636.woff') format('woff')}
+@font-face{font-family:Whitney;font-style:bold;font-weight:700;src:url('../cdn1/assets/8e12fb4f14d9c4592eb8ec9f22337b04.woff') format('woff')}
+
+body {
+	margin:0;
+	font-family: Whitney,Helvetica Neue,Helvetica,Arial,sans-serif;
+	text-rendering: optimizeLegibility;
+}
+
+.ns {
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.wrapper {
+	width: 80%;
+	height: 80%;
+	display: block;
+	position: absolute;
+	margin: auto;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background: #dedede;
+	padding: 20px;
+	border: 2px #a8a8a8 solid;
+	border-radius: 8px;
+	color: black;
+}
+
+.info {
+	margin: 10px;
+	display: block;
+}
+
+.info span:first-of-type {
+	
+}
+
+.info span:first-of-type::after {
+	content: ':';
+	display: inline-block;
+}
+
+.info span:last-of-type {
+	float: right;
+}
+
+.header {
+	text-align: center;
+	font-weight: 600;
+	font-size: 22px;
+}
+
+.mention {
+	border-radius: 3px;
+	padding: 0 2px;
+	font-weight: 600;
+	unicode-bidi: -moz-plaintext;
+	unicode-bidi: plaintext;
+	background: rgba(114,137,218,.1);
+	position: relative;
+	margin: 0;
+	border: 0;
+	font-style: inherit;
+	font-family: inherit;
+	font-size: 100%;
+	vertical-align: baseline;
+	display: initial;
+	cursor: pointer;
+	color: #7289da;
+}
+
+.mention:hover {
+	color: #fff;
+	background-color: #7289da;
+}
+
+.interactive {
+	-webkit-transition: background-color 50ms ease-out,color 50ms ease-out;
+	transition: background-color 50ms ease-out,color 50ms ease-out;
+	cursor: pointer;
+}

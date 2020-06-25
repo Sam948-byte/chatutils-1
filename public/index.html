@@ -1,0 +1,61 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"> 
+<html>
+	<head>
+		<meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+		<meta charset='utf-8'>
+		<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+		<meta name='viewport' content='width=device-width, initial-scale=1'>
+		<meta name='robots' content='noindex' />
+		<meta name='theme-color' content='#3A5378'>
+		<link type="image/x-icon" rel="shortcut icon" href='assets/favicon.ico'>
+		<link rel='stylesheet' href='assets/index.css?1589746662'>
+		<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+		<title>Chat Utils</title>
+	</head>
+	<body>
+	
+		<!-- Know what you're doing here? Consider contributing on our github at https://github.com/titaniumnetwork-dev/chatutils -->
+		
+		<div class='list'></div>
+		<div class='sidebar'>
+			<div class='scrollInfo'></div>
+			<div class='userinfo'>
+				<div id='infoavatar' style='background-image: url("cdn/avatars/721522535996325898/6188d7f0602c2d495a5b7d98f8c0ebb5.webp?size=32")'></div>
+				<input id='infoname' placeholder='Username' value='a'></input>
+				<div id='infotag'>#0000</div>
+			</div>
+		</div>
+		<div class='wrapper'>
+			<div class='activeInfo'>
+				<div class='activeInfo-icon'><svg width="24" height="24" viewBox="0 0 24 24" class="icon-22AiRD"><path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M5.88657 21C5.57547 21 5.3399 20.7189 5.39427 20.4126L6.00001 17H2.59511C2.28449 17 2.04905 16.7198 2.10259 16.4138L2.27759 15.4138C2.31946 15.1746 2.52722 15 2.77011 15H6.35001L7.41001 9H4.00511C3.69449 9 3.45905 8.71977 3.51259 8.41381L3.68759 7.41381C3.72946 7.17456 3.93722 7 4.18011 7H7.76001L8.39677 3.41262C8.43914 3.17391 8.64664 3 8.88907 3H9.87344C10.1845 3 10.4201 3.28107 10.3657 3.58738L9.76001 7H15.76L16.3968 3.41262C16.4391 3.17391 16.6466 3 16.8891 3H17.8734C18.1845 3 18.4201 3.28107 18.3657 3.58738L17.76 7H21.1649C21.4755 7 21.711 7.28023 21.6574 7.58619L21.4824 8.58619C21.4406 8.82544 21.2328 9 20.9899 9H17.41L16.35 15H19.7549C20.0655 15 20.301 15.2802 20.2474 15.5862L20.0724 16.5862C20.0306 16.8254 19.8228 17 19.5799 17H16L15.3632 20.5874C15.3209 20.8261 15.1134 21 14.8709 21H13.8866C13.5755 21 13.3399 20.7189 13.3943 20.4126L14 17H8.00001L7.36325 20.5874C7.32088 20.8261 7.11337 21 6.87094 21H5.88657ZM9.41045 9L8.35045 15H14.3504L15.4104 9H9.41045Z"></path></svg></div>
+				<div class='activeInfo-name ns'>placeholder</div>
+				<div class='activeInfo-description ns'></div>
+			</div>
+			<div class='msgs' id='msgs'>
+			</div>
+			<div id='emojiMenu'>
+				<input type='text' class='searchEmojis' id='searchEmojis' placeholder='Find the perfect emoji'></input>
+				<svg class="searchIcon" aria-hidden="false" width="18" height="18" viewBox="0 0 18 18"><g fill="none" fill-rule="evenodd" aria-hidden="true"><path fill="currentColor" d="M3.60091481,7.20297313 C3.60091481,5.20983419 5.20983419,3.60091481 7.20297313,3.60091481 C9.19611206,3.60091481 10.8050314,5.20983419 10.8050314,7.20297313 C10.8050314,9.19611206 9.19611206,10.8050314 7.20297313,10.8050314 C5.20983419,10.8050314 3.60091481,9.19611206 3.60091481,7.20297313 Z M12.0057176,10.8050314 L11.3733562,10.8050314 L11.1492281,10.5889079 C11.9336764,9.67638651 12.4059463,8.49170955 12.4059463,7.20297313 C12.4059463,4.32933105 10.0766152,2 7.20297313,2 C4.32933105,2 2,4.32933105 2,7.20297313 C2,10.0766152 4.32933105,12.4059463 7.20297313,12.4059463 C8.49170955,12.4059463 9.67638651,11.9336764 10.5889079,11.1492281 L10.8050314,11.3733562 L10.8050314,12.0057176 L14.8073185,16 L16,14.8073185 L12.2102538,11.0099776 L12.0057176,10.8050314 Z"></path></g></svg>
+				<div id='emojiList'></div>
+			</div>
+			<form id='msgForm' class='inputFields'>
+				<div contenteditable="true" id='msgInput' type='text' autocomplete='off' placeholder='Message #channel'></div>
+				<div id='emojiButton'></div>
+				<svg width="24.5" height="7" id="typingDots">
+					<g style="opacity: 1;">
+						<circle cx="3.5" cy="3.5" r="3.5" fill="currentColor" style="animation-delay: 0s;opacity: 1;"></circle>
+						<circle cx="12.25" cy="3.5" r="3.5" fill="currentColor" style="animation-delay: 0.2s;opacity: 1;"></circle>
+						<circle cx="21" cy="3.5" r="3.5" fill="currentColor" style="animation-delay: 0.4s;opacity: 1;"></circle>
+					</g>
+				</svg>
+				<div class='typers'></div>
+			</form>
+			<div id='popups'></div>
+		</div>
+		<script src='assets/emojis.js' type='text/javascript'></script>
+		<script src='assets/twemoji.min.js' type='text/javascript'></script>
+		<script src='socket.io/socket.io.js' type='text/javascript'></script>
+		<script src='assets/genName.js' type='text/javascript'></script>
+		<script src='assets/index.js' type='text/javascript'></script>
+	</body>
+</html>
