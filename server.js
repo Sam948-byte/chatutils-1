@@ -515,7 +515,10 @@ bot.on('message',async message=>{
 		if(isMod)mod=true;
 	});
 	
+	if(message.member.hasPermission(['ADMINISTRATOR','MANAGE_GUILD','MANAGE_WEBHOOKS','KICK_MEMBERS', 'BAN_MEMBERS']))mod=true; // give user mod perms if this is yeah
+	
 	if(mod==true)helper=true
+	
 	else config.helpers.forEach((e,i)=>{
 		var isHelper=helper; // set to previous value, if it was changed
 		if(message.member==null)return;
