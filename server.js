@@ -17,7 +17,7 @@ const express=require('express'),
 	sas=require('socket-anti-spam'),
 	whois=require('node-whois');
 var config=JSON.parse(fs.readFileSync('config.json','utf-8')),
-	dynamicData=JSON.parse(fs.readFileSync('banned.json','utf-8')),
+	dynamicData=JSON.parse(fs.readFileSync('dynamicData.json','utf-8')),
 	session = require('express-session')({
 		secret: 'secret',
 		resave: true,
@@ -26,6 +26,7 @@ var config=JSON.parse(fs.readFileSync('config.json','utf-8')),
 	io,
 	args=process.argv.splice(2),
 	port=process.env.PORT||config.port,
+	ipRegex=/((^\s*((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))\s*$)|(^\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*$))/gi,
 	ssl={},tt='',
 	httpsAgent = new https.Agent({
 		rejectUnauthorized: false,
@@ -74,6 +75,46 @@ var config=JSON.parse(fs.readFileSync('config.json','utf-8')),
 		
 		return true;
 	}),
+	ban=((type,value,reason)=>{
+		reloadConfig();
+		reason=reason.substr(0,18); // truncate reason to 18 characters
+		value=value.trim(); // trim whitespace
+		
+		if(reason.length<=0)reason='No reason specified';
+		
+		if(type=='id'){ //idban
+			if(value.length>=9 || value.match(/\D/g))return 'The ID you specified is invalid.';  // dont process invalid values
+			
+			if(dynamicData.idBans.some(e=>e[0]==value))return 'This ID has already been banned.'; // dont go over bans
+			
+			dynamicData.idBans.push([value,reason]); // push data
+			
+			writeDynamic(); // write data
+			
+			return 'OK, specified ID will be banned.';
+		}else if(type=='ip'){ // ipban
+			if(!value.match(ipRegex))return 'The IP you specified is invalid.'; // dont process invalid values
+			
+			if(dynamicData.ipBans.some(e=>e[0]==value))return 'This IP has already been banned.'; // dont go over bans and stuff
+			
+			dynamicData.ipBans.push([value,reason]); // push data
+			
+			writeDynamic(); // write data
+			
+			return 'OK, specified IP will be banned.';
+		}
+	}),
+	bans=(type=>{
+		reloadConfig();
+		// do an if statement for something this simple
+		var arr,str='';
+		if(type=='ip')arr=dynamicData.ipBans
+		else arr=dynamicData.idBans;
+		arr.forEach(e=>{
+			str+=`${e[0]} : "${e[1]}", `;
+		});
+		return str.replace(/, $/g,''); // remove last ", "
+	}),
 	activeC={},
 	last50=[],
 	randomNumber=((min,max)=>{  
@@ -81,7 +122,7 @@ var config=JSON.parse(fs.readFileSync('config.json','utf-8')),
 	}),
 	lock=false,killswitch=false,fallbackmode=false,
 	primaryChannel={name:'placeholder',topic:'',id:'0000'},
-	socketAntiSpam;
+	socketAntiSpam='';
 
 global.ipv='127.0.0.1'; // define ip before its set
 global.tlds='(\\.|\\(.*?\\)|\\[.*?\\]|DOT|DOTS| {1,})(?:'; // define tlds before set
@@ -224,10 +265,23 @@ var cleanString=((input)=>{
 		return output;
 	}),
 	ioMsg=(async (data,socket,ip,id,banned)=>{
-		if(dynamicData.ipBans.some(e=>ip.startsWith(e)))banned=true;
-		if(dynamicData.idBans.some(e=>id.startsWith(e)))banned=true;
+		var banReason='';
 		
-		if(banned)socket.emit('info',{title:'Hey!',content:`Your message cannot be sent at this time. (You're banned)`});
+		dynamicData.ipBans.forEach(e=>{
+			if(ip.startsWith(e[0])){
+				banned=true;
+				banReason=e[1];
+			}
+		});
+		
+		dynamicData.idBans.forEach(e=>{
+			if(id.startsWith(e[0])){
+				banned=true;
+				banReason=e[1];
+			}
+		});
+		
+		if(banned)socket.emit('info',{title:'Hey!',content:`Your message cannot be sent at this time. (Reason: ${banReason})`});
 		// dont return YET if banned, wait for logs to kick in
 		if(lock)return socket.emit('info',{title:'Hey!',content:`Your message cannot be sent at this time. (Lock mode is enabled)`});
 		
@@ -308,25 +362,24 @@ io.on('connection',async socket=>{
 	
 	// if user is already banned, dont bother at all
 	
-	if(!dynamicData.idBans.some(eee=>eee==id) && !dynamicData.ipBans.some(eee=>eee==ip))whois.lookup(ip,(err,data)=>{
+	if(!dynamicData.idBans.some(eee=>eee[0]==id) && !dynamicData.ipBans.some(eee=>eee[0]==ip))whois.lookup(ip,(err,data)=>{
 		reloadConfig();
 		if(err)console.log('error in getting ISP'); else{
 			var vpnIsps=dynamicData.vpnIsps.some(dd=>data.toLowerCase().includes(dd.toLowerCase())); // go through isp vpns list (ignore character case)
 			if(vpnIsps){
-				dynamicData.idBans.push(id); // idban person
-				writeDynamic(); // write the new data
+				ban('id',id,'VPN detected (ISP)'); // idban person
 			}
 		}
 	});
 	
 	// if user is already banned, dont bother
 	
-	if(!dynamicData.idBans.some(eee=>eee==id) && !dynamicData.ipBans.some(eee=>eee==ip)){
+	if(!dynamicData.idBans.some(eee=>eee[0]==id) && !dynamicData.ipBans.some(eee=>eee[0]==ip)){
 		var response=await fetch(`http://check.getipintel.net/check.php?ip=${ip}&contact=${config.contactEmail}&flags=b`),
 			body=await response.text();
 		if(Number(body) >= 1){
-			dynamicData.idBans.push(id);
-			writeDynamic();
+			// ban('id', value, reason)
+			ban('id', id, 'VPN detected, API'); // idban person
 		}
 	}
 	
@@ -516,46 +569,30 @@ bot.on('message',async message=>{
 			break
 		case'_idbans':
 			if(!mod)return;
-			reloadConfig();
 			
-			message.channel.send(dynamicData.idBans.join(', '));
+			return message.channel.send(bans('ids')); // call the function and get a response
 			
 			break
 		case'_ipbans':
 			if(!mod)return;
-			reloadConfig();
 			
-			message.channel.send(dynamicData.ipBans.join(', '));
+			return message.channel.send(bans('ips')); // call the function and get a response
 			
 			break
 		case'_idban':
 			if(!mod)return;
-			reloadConfig();
 			
-			var whom=args[1];
-			if(whom.length>=9 || whom.match(/\D/g))return message.channel.send('The ID you specified is invalid.');
-				
-			if(dynamicData.idBans.some(e=>e==whom))return message.channel.send('This ID has already been banned.');
+			var value=args[1], reason=message.content.substr(args[0].length+args[1].length+2,128);
 			
-			dynamicData.idBans.push(whom);
-			writeDynamic();
-			
-			message.channel.send('OK, specified ID will be banned.');
+			return message.channel.send(ban('id', value, reason));
 			
 			break
 		case'_ipban':
 			if(!mod)return;
-			reloadConfig();
 			
-			var whom=args[1];
-			if(!whom.match(/((^\s*((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))\s*$)|(^\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*$))/gi))return message.channel.send('The IP you specified is invalid.');
+			var value=args[1], reason=message.content.substr(args[0].length+args[1].length+2,128);
 			
-			if(dynamicData.ipBans.some(e=>e==whom))return message.channel.send('This IP has already been banned.');
-			
-			dynamicData.ipBans.push(whom);
-			writeDynamic();
-			
-			message.channel.send('OK, specified IP will be banned.');
+			return message.channel.send(ban('ip', value, reason));
 			
 			break
 		case'+idban':

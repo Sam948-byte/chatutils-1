@@ -1,9 +1,15 @@
 {
 	"idBans": [
-		"demoID"
+		[
+			"demoID",
+			"demo stuff lol"
+		]
 	],
 	"ipBans": [
-		"demoIP"
+		[
+			"127.0.0.57",
+			"No reason specified"
+		]
 	],
 	"vpnIsps": [
 		"DigitalOcean",
