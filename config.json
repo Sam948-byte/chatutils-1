@@ -1,5 +1,5 @@
 {
-	"token": "insert bot token here",
+	"token": "const mySecret = process.env['Token']",
 	"ssl": false,
 	"listenip": "127.0.0.1",
 	"port": 8080,
